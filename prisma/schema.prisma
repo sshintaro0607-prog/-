@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String    @db.VarChar(100)
+  birthDate    DateTime? @map("birth_date") @db.Date
+  role         Role
+  passwordHash String?   @map("password_hash") @db.VarChar(255)
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  handoverRecordsAuthored HandoverRecord[]    @relation("Author")
+  handoverRecordsUpdated  HandoverRecord[]    @relation("LastUpdatedBy")
+  standingNotesUpdated    StudentStandingNote[]
+  attachmentsUploaded     Attachment[]
+  aiReportsGenerated      AiReport[]
+  systemSettingsUpdated   SystemSetting[]
+
+  @@map("users")
+}
+
+model Student {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentNumber String   @unique @map("student_number") @db.VarChar(20)
+  name          String   @db.VarChar(100)
+  nameKana      String   @map("name_kana") @db.VarChar(100)
+  grade         String   @db.VarChar(20)
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  standingNotes   StudentStandingNote[]
+  handoverRecords HandoverRecord[]
+  aiReports       AiReport[]
+
+  @@map("students")
+}
+
+model StudentStandingNote {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId String   @map("student_id") @db.Uuid
+  content   String
+  sortOrder Int      @default(0) @map("sort_order")
+  updatedBy String   @map("updated_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  editor  User    @relation(fields: [updatedBy], references: [id])
+
+  @@map("student_standing_notes")
+}
+
+model HandoverRecord {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId     String   @map("student_id") @db.Uuid
+  authorId      String   @map("author_id") @db.Uuid
+  subject       Subject
+  lessonDate    DateTime @map("lesson_date") @db.Date
+  todaysContent String?  @map("todays_content")
+  achieved      String?
+  notAchieved   String?  @map("not_achieved")
+  improvement   String?
+  specialNotes  String?  @map("special_notes")
+  lastUpdatedBy String?  @map("last_updated_by") @db.Uuid
+  isDeleted     Boolean  @default(false) @map("is_deleted")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  student     Student     @relation(fields: [studentId], references: [id])
+  author      User        @relation("Author", fields: [authorId], references: [id])
+  lastUpdater User?       @relation("LastUpdatedBy", fields: [lastUpdatedBy], references: [id])
+  attachments Attachment[]
+
+  @@index([studentId], map: "idx_handover_student_id")
+  @@index([lessonDate(sort: Desc)], map: "idx_handover_lesson_date")
+  @@index([subject], map: "idx_handover_subject")
+  @@map("handover_records")
+}
+
+model Attachment {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  handoverId   String   @map("handover_id") @db.Uuid
+  uploadedBy   String   @map("uploaded_by") @db.Uuid
+  originalName String   @map("original_name") @db.VarChar(255)
+  storedName   String   @unique @map("stored_name") @db.VarChar(255)
+  storagePath  String   @map("storage_path")
+  mimeType     String   @map("mime_type") @db.VarChar(100)
+  fileSize     BigInt   @map("file_size")
+  isDeleted    Boolean  @default(false) @map("is_deleted")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  handover HandoverRecord @relation(fields: [handoverId], references: [id], onDelete: Cascade)
+  uploader User           @relation(fields: [uploadedBy], references: [id])
+
+  @@map("attachments")
+}
+
+model AiReport {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId   String?    @map("student_id") @db.Uuid
+  reportType  ReportType @map("report_type")
+  targetYear  Int        @map("target_year") @db.SmallInt
+  targetMonth Int        @map("target_month") @db.SmallInt
+  content     String
+  generatedBy String?    @map("generated_by") @db.Uuid
+  modelUsed   String     @map("model_used") @db.VarChar(100)
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz
+
+  student   Student? @relation(fields: [studentId], references: [id])
+  generator User?    @relation(fields: [generatedBy], references: [id])
+
+  @@unique([studentId, targetYear, targetMonth])
+  @@map("ai_reports")
+}
+
+model SystemSetting {
+  key       String   @id @db.VarChar(100)
+  value     String
+  updatedBy String?  @map("updated_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  editor User? @relation(fields: [updatedBy], references: [id])
+
+  @@map("system_settings")
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+}
+
+enum Subject {
+  JAPANESE
+  MATH
+  ENGLISH
+  SCIENCE
+  SOCIAL
+  OTHER
+}
+
+enum ReportType {
+  STUDENT
+  OVERALL
+}
