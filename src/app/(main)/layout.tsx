@@ -1,7 +1,7 @@
 import { auth, signOut } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import type { Role } from "@prisma/client";
+import type { Role } from "@/generated/prisma/client";
 
 function NavItem({ href, label }: { href: string; label: string }) {
   return (

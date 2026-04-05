@@ -1,4 +1,4 @@
-import type { Role, Subject, ReportType } from "@prisma/client";
+import type { Role, Subject, ReportType } from "@/generated/prisma/client";
 
 export type { Role, Subject, ReportType };
 
