@@ -2,6 +2,7 @@ import { auth, signOut } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Role } from "@/generated/prisma/client";
+import { MobileNav } from "@/components/layout/MobileNav";
 
 function NavItem({ href, label }: { href: string; label: string }) {
   return (
@@ -36,16 +37,14 @@ export default async function MainLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* サイドバー */}
-      <aside className="w-56 bg-white border-r border-gray-200 flex flex-col shrink-0">
-        {/* ロゴ・塾名 */}
+      {/* サイドバー（PCのみ） */}
+      <aside className="hidden md:flex w-56 bg-white border-r border-gray-200 flex-col shrink-0">
         <div className="px-4 py-4 border-b border-gray-200">
           <span className="text-base font-bold text-gray-900 leading-tight line-clamp-2">
             {appName}
           </span>
         </div>
 
-        {/* ナビゲーション */}
         <nav className="flex-1 px-2 py-4 overflow-y-auto">
           <NavSection>
             <NavItem href="/dashboard" label="ダッシュボード" />
@@ -76,9 +75,12 @@ export default async function MainLayout({ children }: { children: React.ReactNo
       {/* メインコンテンツ */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* ヘッダー */}
-        <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shrink-0">
-          <div />
-          <div className="flex items-center gap-4">
+        <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-3 flex items-center justify-between shrink-0">
+          {/* モバイル: 塾名 / PC: 空白 */}
+          <span className="md:hidden text-sm font-bold text-gray-900 truncate">{appName}</span>
+          <div className="hidden md:block" />
+
+          <div className="flex items-center gap-3 md:gap-4">
             <span className="text-sm text-gray-600">
               {session.user.name}
               {isAdmin && (
@@ -103,9 +105,12 @@ export default async function MainLayout({ children }: { children: React.ReactNo
           </div>
         </header>
 
-        {/* ページコンテンツ */}
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        {/* ページコンテンツ（モバイルはボトムナビ分の余白を追加） */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6">{children}</main>
       </div>
+
+      {/* ボトムナビ（スマホのみ） */}
+      <MobileNav isAdmin={isAdmin} />
     </div>
   );
 }

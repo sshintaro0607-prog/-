@@ -10,11 +10,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 講師ログイン
   const [teacherName, setTeacherName] = useState("");
   const [birthDate, setBirthDate] = useState("");
-
-  // 室長ログイン
   const [password, setPassword] = useState("");
 
   async function handleTeacherLogin(e: React.FormEvent) {
@@ -51,29 +48,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6 md:p-8">
+        <h1 className="text-xl md:text-2xl font-bold text-center mb-6 text-gray-800">
           {process.env.NEXT_PUBLIC_APP_NAME ?? "授業引継書システム"}
         </h1>
 
         {/* タブ切り替え */}
         <div className="flex mb-6 border-b">
           <button
-            className={`flex-1 py-2 text-sm font-medium transition-colors ${
+            type="button"
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
               tab === "teacher"
                 ? "border-b-2 border-blue-600 text-blue-600"
-                : "text-gray-500 hover:text-gray-700"
+                : "text-gray-500"
             }`}
             onClick={() => { setTab("teacher"); setError(""); }}
           >
             講師ログイン
           </button>
           <button
-            className={`flex-1 py-2 text-sm font-medium transition-colors ${
+            type="button"
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
               tab === "admin"
                 ? "border-b-2 border-blue-600 text-blue-600"
-                : "text-gray-500 hover:text-gray-700"
+                : "text-gray-500"
             }`}
             onClick={() => { setTab("admin"); setError(""); }}
           >
@@ -93,8 +92,9 @@ export default function LoginPage() {
                 value={teacherName}
                 onChange={(e) => setTeacherName(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="山田 太郎"
+                autoComplete="name"
               />
             </div>
             <div>
@@ -106,14 +106,14 @@ export default function LoginPage() {
                 value={birthDate}
                 onChange={(e) => setBirthDate(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium py-2 rounded-lg transition-colors"
+              className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:bg-blue-300 text-white font-medium py-3 rounded-lg transition-colors text-base"
             >
               {loading ? "ログイン中..." : "ログイン"}
             </button>
@@ -132,14 +132,15 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+                autoComplete="current-password"
               />
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium py-2 rounded-lg transition-colors"
+              className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:bg-blue-300 text-white font-medium py-3 rounded-lg transition-colors text-base"
             >
               {loading ? "ログイン中..." : "ログイン"}
             </button>
