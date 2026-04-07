@@ -8,10 +8,10 @@
 - auth.ts に `trustHost: true` を設定済み（LAN内スマホからのアクセス対応）
 
 ## スマホデバッグ
-- `npm run dev -- --hostname 0.0.0.0` でLAN公開
+- `npm run build && npm run start -- --hostname 0.0.0.0` でLAN公開（本番ビルド必須）
+- devサーバーだとiPhoneでJSが動かない（localhostを参照してしまうため）
 - スマホからは `http://192.168.11.6:3000` でアクセス
-- JSが動かない場合は `npm run build && npm run start -- --hostname 0.0.0.0`（本番ビルド）で試す
-- iPhoneのデバッグはngrok推奨
+- iPhone機能確認済み
 
 ## モバイル対応
 - PC: 左サイドバー（`md:flex`）
