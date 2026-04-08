@@ -11,7 +11,11 @@ const createSchema = z.object({
   achieved: z.string().optional(),
   notAchieved: z.string().optional(),
   improvement: z.string().optional(),
+  checkTestResult: z.string().optional(),
+  nextCheckTest: z.string().optional(),
+  nextPlan: z.string().optional(),
   specialNotes: z.string().optional(),
+  isDraft: z.boolean().optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -26,10 +30,13 @@ export async function GET(req: NextRequest) {
   const to = sp.get("to") ?? undefined;
   const q = sp.get("q") ?? undefined;
   const page = Math.max(1, parseInt(sp.get("page") ?? "1", 10));
+  const showDrafts = sp.get("draft") === "true";
   const pageSize = 20;
 
   const where = {
     isDeleted: false,
+    isDraft: showDrafts ? true : false,
+    ...(showDrafts ? { authorId: session.user.id } : {}),
     ...(studentId ? { studentId } : {}),
     ...(subject ? { subject: subject as never } : {}),
     ...(authorId ? { authorId } : {}),
@@ -83,7 +90,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { studentId, subject, lessonDate, ...rest } = parsed.data;
+  const { studentId, subject, lessonDate, isDraft, ...rest } = parsed.data;
 
   const student = await prisma.student.findUnique({ where: { id: studentId } });
   if (!student || !student.isActive) {
@@ -96,6 +103,7 @@ export async function POST(req: NextRequest) {
       authorId: session.user.id,
       subject,
       lessonDate: new Date(lessonDate),
+      isDraft: isDraft ?? false,
       ...rest,
     },
   });

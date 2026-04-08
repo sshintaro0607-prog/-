@@ -69,8 +69,12 @@ model HandoverRecord {
   achieved      String?
   notAchieved   String?  @map("not_achieved")
   improvement   String?
-  specialNotes  String?  @map("special_notes")
-  lastUpdatedBy String?  @map("last_updated_by") @db.Uuid
+  specialNotes    String?  @map("special_notes")
+  checkTestResult String?  @map("check_test_result")
+  nextCheckTest   String?  @map("next_check_test")
+  nextPlan        String?  @map("next_plan")
+  isDraft         Boolean  @default(false) @map("is_draft")
+  lastUpdatedBy   String?  @map("last_updated_by") @db.Uuid
   isDeleted     Boolean  @default(false) @map("is_deleted")
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz

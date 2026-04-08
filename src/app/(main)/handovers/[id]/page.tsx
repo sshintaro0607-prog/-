@@ -33,6 +33,9 @@ export default async function HandoverDetailPage({ params }: Params) {
     { label: "できたこと", value: record.achieved },
     { label: "できなかったこと", value: record.notAchieved },
     { label: "改善策", value: record.improvement },
+    { label: "今回の確認テスト結果", value: record.checkTestResult },
+    { label: "次回確認テスト", value: record.nextCheckTest },
+    { label: "次回予定", value: record.nextPlan },
     { label: "特記事項", value: record.specialNotes },
   ];
 
@@ -41,9 +44,14 @@ export default async function HandoverDetailPage({ params }: Params) {
       <div className="flex items-start justify-between mb-6">
         <div>
           <Link href="/handovers" className="text-gray-400 hover:text-gray-600 text-sm">← 引継書一覧</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">
-            {record.student.name} の引継書
-          </h1>
+          <div className="flex items-center gap-2 mt-1">
+            <h1 className="text-2xl font-bold text-gray-900">
+              {record.student.name} の引継書
+            </h1>
+            {record.isDraft && (
+              <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-medium">下書き</span>
+            )}
+          </div>
           <p className="text-sm text-gray-500 mt-0.5">
             {record.lessonDate.toLocaleDateString("ja-JP")} ／ {SUBJECT_LABELS[record.subject]}
           </p>

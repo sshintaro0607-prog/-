@@ -46,6 +46,9 @@ export default async function EditHandoverPage({ params }: Params) {
           achieved: record.achieved ?? "",
           notAchieved: record.notAchieved ?? "",
           improvement: record.improvement ?? "",
+          checkTestResult: record.checkTestResult ?? "",
+          nextCheckTest: record.nextCheckTest ?? "",
+          nextPlan: record.nextPlan ?? "",
           specialNotes: record.specialNotes ?? "",
         }}
       />

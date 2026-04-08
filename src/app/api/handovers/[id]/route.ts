@@ -10,7 +10,11 @@ const updateSchema = z.object({
   achieved: z.string().optional(),
   notAchieved: z.string().optional(),
   improvement: z.string().optional(),
+  checkTestResult: z.string().optional(),
+  nextCheckTest: z.string().optional(),
+  nextPlan: z.string().optional(),
   specialNotes: z.string().optional(),
+  isDraft: z.boolean().optional(),
 });
 
 type Params = { params: Promise<{ id: string }> };

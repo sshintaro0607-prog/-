@@ -21,6 +21,7 @@ export default async function HandoversPage({ searchParams }: { searchParams: Pr
 
   const where = {
     isDeleted: false,
+    isDraft: false,
     ...(sp.studentId ? { studentId: sp.studentId } : {}),
     ...(sp.subject ? { subject: sp.subject as Subject } : {}),
     ...(sp.authorId ? { authorId: sp.authorId } : {}),
@@ -36,7 +37,7 @@ export default async function HandoversPage({ searchParams }: { searchParams: Pr
     } : {}),
   };
 
-  const [records, total, students, teachers] = await Promise.all([
+  const [records, total, students, teachers, myDrafts] = await Promise.all([
     prisma.handoverRecord.findMany({
       where, orderBy: { lessonDate: "desc" },
       skip: (page - 1) * pageSize, take: pageSize,
@@ -49,6 +50,15 @@ export default async function HandoversPage({ searchParams }: { searchParams: Pr
     prisma.handoverRecord.count({ where }),
     prisma.student.findMany({ where: { isActive: true }, select: { id: true, name: true }, orderBy: { nameKana: "asc" } }),
     prisma.user.findMany({ where: { isActive: true }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    prisma.handoverRecord.findMany({
+      where: { isDeleted: false, isDraft: true, authorId: session.user.id },
+      orderBy: { updatedAt: "desc" },
+      include: {
+        student: { select: { id: true, name: true, grade: true } },
+        author: { select: { id: true, name: true } },
+        attachments: { where: { isDeleted: false }, select: { id: true } },
+      },
+    }),
   ]);
 
   const totalPages = Math.ceil(total / pageSize);
@@ -83,6 +93,24 @@ export default async function HandoversPage({ searchParams }: { searchParams: Pr
         <button type="submit" className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200">検索</button>
         <Link href="/handovers" className="px-4 py-2 text-gray-400 text-sm hover:text-gray-600">クリア</Link>
       </form>
+
+      {/* 下書きセクション */}
+      {myDrafts.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-sm font-semibold text-yellow-700 mb-2 flex items-center gap-1">
+            <span className="inline-block w-2 h-2 bg-yellow-400 rounded-full" />
+            下書き（{myDrafts.length}件）
+          </h2>
+          <div className="space-y-2">
+            {myDrafts.map((r) => (
+              <div key={r.id} className="relative">
+                <span className="absolute top-3 right-3 text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full z-10">下書き</span>
+                <HandoverCard key={r.id} id={r.id} lessonDate={r.lessonDate.toISOString()} subject={r.subject} student={r.student} author={r.author} todaysContent={r.todaysContent} attachmentCount={r.attachments.length} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <p className="text-sm text-gray-500 mb-4">{total} 件</p>
 
